@@ -1,5 +1,6 @@
 package com.example.reactorweb;
 
+import com.example.reactorweb.handler.ProductHandler;
 import com.example.reactorweb.model.Product;
 import com.example.reactorweb.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -7,8 +8,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RouterFunctions.nest;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @SpringBootApplication
 public class ReactorWebApplication {
@@ -37,5 +46,30 @@ public class ReactorWebApplication {
 //                .thenMany(productFlux)
 //                .thenMany(repository.findAll())
 //                .subscribe(System.out::println);
+    }
+
+    @Bean
+    RouterFunction<ServerResponse> routes(ProductHandler handler) {
+//        return route(GET("/products").and(accept(APPLICATION_JSON)), handler::getAllProducts)
+//                .andRoute(POST("/products").and(accept(APPLICATION_JSON)), handler::saveProduct)
+//                .andRoute(DELETE("/products").and(accept(APPLICATION_JSON)), handler::deleteAllProduct)
+//                .andRoute(GET("/products/events").and(accept(APPLICATION_JSON)), handler::getProductEvents)
+//                .andRoute(GET("/products/{id}").and(accept(APPLICATION_JSON)), handler::getProduct)
+//                .andRoute(PUT("/products/{id}").and(accept(APPLICATION_JSON)), handler::updatedProduct)
+//                .andRoute(DELETE("/products/{id}").and(accept(APPLICATION_JSON)), handler::deleteProduct);
+
+        return nest(path("products"),
+                nest(accept(APPLICATION_JSON).or(contentType(APPLICATION_JSON)).or(accept(TEXT_EVENT_STREAM)),
+                route(GET("/"), handler::getAllProducts)
+                        .andRoute(method(HttpMethod.POST), handler::saveProduct)
+                        .andRoute(DELETE("/"), handler::deleteAllProduct)
+                        .andRoute(GET("/events"), handler::getProductEvents)
+                        .andNest(path("/{id}"),
+                                route(method(HttpMethod.GET), handler::getProduct)
+                                        .andRoute(method(HttpMethod.PUT), handler::updatedProduct)
+                                        .andRoute(method(HttpMethod.DELETE), handler::deleteProduct)
+                        )
+                )
+        );
     }
 }

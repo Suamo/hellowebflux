@@ -14,11 +14,14 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/rest-products") // will work in parallel to routing approach
 public class ProductController {
 
-    @Autowired
     private ProductRepository repository;
+
+    public ProductController(ProductRepository repository) {
+        this.repository = repository;
+    }
 
     @GetMapping
     public Flux<Product> getAllProducts() {
