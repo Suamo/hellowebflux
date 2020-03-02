@@ -3,7 +3,6 @@ package com.example.reactorweb.controller;
 import com.example.reactorweb.model.Product;
 import com.example.reactorweb.model.ProductEvent;
 import com.example.reactorweb.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,12 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
+/**
+ * For usage of an API programmatically use:
+ *
+ * @see org.springframework.web.reactive.function.client.WebClient
+ * @see org.springframework.test.web.reactive.server.WebTestClient
+ */
 @RestController
 @RequestMapping("/rest-products") // will work in parallel to routing approach
 public class ProductController {
